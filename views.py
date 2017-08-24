@@ -1,6 +1,8 @@
-from flask import current_app as app
+from flask import Blueprint
+
+views = Blueprint('views', __name__)
 
 
-@app.route('/')
+@views.route('/')
 def hello_world():
     return 'Hello World!'
