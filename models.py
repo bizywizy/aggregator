@@ -1,4 +1,6 @@
-from aggregator import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 
 class Subscription(db.Model):

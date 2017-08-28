@@ -1,4 +1,6 @@
+requests==2.18.4
 psycopg2==2.7.3.1
+ipython==6.1.0
 gunicorn==19.7.1
 flask-sqlalchemy==2.2
 feedparser==5.2.1
