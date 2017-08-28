@@ -21,8 +21,8 @@ class Subscription:
         return d.entries[0].link
 
     @classmethod
-    def subscribe(cls, name, url):
-        s = SubscriptionDomain(name, url, cls._get_last_link(url))
+    def subscribe(cls, name, url, subscriber):
+        s = SubscriptionDomain(name, url, cls._get_last_link(url), subscriber)
         db.session.add(s)
         db.session.commit()
         return cls(s)

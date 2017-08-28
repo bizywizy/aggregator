@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from core import db
 
 
 class Subscription(db.Model):
@@ -8,12 +6,13 @@ class Subscription(db.Model):
     name = db.Column(db.VARCHAR(255))
     url = db.Column(db.VARCHAR(255))
     last_link = db.Column(db.VARCHAR(255))
-    subscriber = db.Column(db.Integer, db.ForeignKey('subscriber.id'))
+    subscriber_id = db.Column(db.Integer, db.ForeignKey('subscriber.id'), nullable=True)
 
-    def __init__(self, name, url, last_link):
+    def __init__(self, name, url, last_link, subscriber_id):
         self.name = name
         self.url = url
         self.last_link = last_link
+        self.subscriber_id = subscriber_id
 
 
 class Subscriber(db.Model):
@@ -23,3 +22,8 @@ class Subscriber(db.Model):
     first_name = db.Column(db.VARCHAR(255), nullable=True)
     last_name = db.Column(db.VARCHAR(255), nullable=True)
     subscriptions = db.relationship('Subscription', backref='subscriber', lazy='dynamic')
+
+    def __init__(self, chat_id, username=None, first_name=None, last_name=None):
+        self.chat_id = chat_id
+        db.session.add(self)
+        db.session.commit()
