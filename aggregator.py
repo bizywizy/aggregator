@@ -1,15 +1,17 @@
 import os
 
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.contrib.fixers import ProxyFix
 
 from views import views
-from models import db
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://aggregator_user:qwerty@localhost:5432/aggregator'
-db.init_app(app)
-app.register_blueprint(views)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+token = os.environ.get('TOKEN')
+app.register_blueprint(views, url_prefix='/' + token)
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
