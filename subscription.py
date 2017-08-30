@@ -2,7 +2,7 @@ import contextlib
 
 import feedparser
 
-from models import Subscription as SubscriptionDomain, db
+from models import db
 
 
 class Subscription:
@@ -10,22 +10,12 @@ class Subscription:
         self._subscription_domain = subscription_domain
         self.name = subscription_domain.name
         self.url = subscription_domain.url
-        self.last_link = subscription_domain.last_link
-
-    def __str__(self):
-        return '{} subscription'.format(self.name)
+        self.last_link = subscription_domain.last_link or self._get_last_link(self.url)
 
     @staticmethod
     def _get_last_link(url):
         d = feedparser.parse(url)
         return d.entries[0].link
-
-    @classmethod
-    def subscribe(cls, name, url, subscriber):
-        s = SubscriptionDomain(name, url, cls._get_last_link(url), subscriber)
-        db.session.add(s)
-        db.session.commit()
-        return cls(s)
 
     def _updates(self):
         d = feedparser.parse(self.url)

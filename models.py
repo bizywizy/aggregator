@@ -10,15 +10,13 @@ class Subscription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(255), unique=True)
     url = db.Column(db.VARCHAR(255))
-    last_link = db.Column(db.VARCHAR(255))
+    last_link = db.Column(db.VARCHAR(255), nullable=True)
     subscribers = db.relationship('Subscriber', secondary=subscriptions,
                                   backref=db.backref('subscriptions', lazy='dynamic'))
 
-    def __init__(self, name, url, last_link, subscriber_id):
+    def __init__(self, name, url):
         self.name = name
         self.url = url
-        self.last_link = last_link
-        self.subscriber_id = subscriber_id
 
     @classmethod
     def get_by_name(cls, name):

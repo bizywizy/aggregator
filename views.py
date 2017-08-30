@@ -2,9 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from core import db
 from models import Subscriber, Subscription as SubscriptionDomain
-from subscription import Subscription
 
 views = Blueprint('views', __name__)
+
+
+class CommandNotValid(Exception):
+    pass
 
 
 @views.route('/')
@@ -17,11 +20,16 @@ def receive_update():
     update = request.json
     message = update.get('message')
     text = message.get('text')
-    chat = message.get('chat')
-    if text.startswith('/subscribe'):
-        _, name, url = text.split(' ')
-        subscriber = Subscriber(chat.get('id'))
-        s = Subscription.subscribe(name, url, subscriber.id)
+    chat_id = message.get('chat', {}).get('id')
+    command, args = parse_text(text)
+    commands = {
+        '/start': lambda: [start(Subscriber.get_or_create(chat_id))],
+        '/subscribe': lambda: [subscribe(Subscriber.get_or_create(chat_id), name) for name in args],
+        '/unsubscribe': lambda: [unsubscribe(Subscriber.get_or_create(chat_id), name) for name in args],
+        '/my_subscriptions': lambda: own_subscription_list(Subscriber.get_or_create(chat_id)),
+        '/subscriptions': lambda: all_subscription_list()
+    }
+
     return jsonify({})
 
 
@@ -71,5 +79,7 @@ def all_subscription_list():
 # utils
 def parse_text(text):
     commands = ('/start', '/subscribe', '/unsubscribe', '/my_subscriptions', '/subscriptions')
-    if not text.startswith('/'):
-        return {'status': 'error', 'response': 'please use one of /commands'}
+    command, *args = text.split()
+    if command not in commands:
+        raise CommandNotValid()
+    return command, args
